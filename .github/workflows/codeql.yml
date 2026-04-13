@@ -1,0 +1,44 @@
+name: "CodeQL - SourceAFIS (Java)"
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+  schedule:
+    - cron: '16 14 * * 6'
+
+jobs:
+  analyze:
+    name: Analyze SourceAFIS Java Project
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ java ]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 🔍 Initialize CodeQL
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-extended
+
+      # 🧱 Build Java project (important pour SourceAFIS usage)
+      - name: Build project (Maven)
+        run: mvn clean compile
+
+      # 🛡️ Run analysis
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v4
