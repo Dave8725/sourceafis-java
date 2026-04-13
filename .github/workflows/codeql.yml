@@ -1,4 +1,4 @@
-name: "CodeQL - SourceAFIS (Java)"
+name: "CodeQL Full Security Scan"
 
 on:
   push:
@@ -7,11 +7,11 @@ on:
     branches: [ main ]
   workflow_dispatch:
   schedule:
-    - cron: '16 14 * * 6'
+    - cron: '0 2 * * 0'  # chaque dimanche
 
 jobs:
   analyze:
-    name: Analyze SourceAFIS Java Project
+    name: CodeQL Full Scan
     runs-on: ubuntu-latest
 
     permissions:
@@ -22,22 +22,23 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [ java ]
+        language: [ javascript, java, python ]
 
     steps:
+      # 📥 Checkout code
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 🔍 Initialize CodeQL
+      # 🧠 Initialize CodeQL
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
         with:
           languages: ${{ matrix.language }}
-          queries: security-extended
+          queries: security-and-quality
 
-      # 🧱 Build Java project (important pour SourceAFIS usage)
-      - name: Build project (Maven)
-        run: mvn clean compile
+      # 🏗️ Build step (auto-detection)
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v4
 
       # 🛡️ Run analysis
       - name: Perform CodeQL Analysis
